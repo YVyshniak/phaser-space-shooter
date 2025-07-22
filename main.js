@@ -26,13 +26,16 @@ let scoreText;
 const game = new Phaser.Game(config);
 
 function preload() {
-  this.load.atlas('space', 'assets/space-atlas.png', 'assets/space-atlas.json');
+  this.load.image('background', 'assets/background.png');
+  this.load.image('player', 'assets/player.png');
+  this.load.image('enemy', 'assets/enemy.png');
+  this.load.image('laser', 'assets/laser.png');
 }
 
 function create() {
-  this.add.tileSprite(240, 400, 480, 800, 'space', 'Background.png').setScrollFactor(0);
+  this.add.tileSprite(240, 400, 480, 800, 'background').setScrollFactor(0);
 
-  player = this.physics.add.sprite(240, 700, 'space', 'Player.png');
+  player = this.physics.add.sprite(240, 700, 'player');
   player.setCollideWorldBounds(true);
 
   cursors = this.input.keyboard.createCursorKeys();
@@ -44,8 +47,7 @@ function create() {
     const enemy = enemies.create(
       Phaser.Math.Between(50, 430),
       Phaser.Math.Between(0, 200),
-      'space',
-      'Enemy.png'
+      'enemy'
     );
     enemy.setVelocityY(100);
   }
@@ -66,7 +68,7 @@ function update(time) {
   else player.setVelocityX(0);
 
   if (cursors.space.isDown && time > lastFired) {
-    const bullet = bullets.get(player.x, player.y - 20, 'space', 'Laser.png');
+    const bullet = bullets.get(player.x, player.y - 20, 'laser');
     if (bullet) {
       bullet.setActive(true);
       bullet.setVisible(true);
