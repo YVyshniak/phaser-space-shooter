@@ -1,56 +1,51 @@
-
 const config = {
   type: Phaser.AUTO,
   width: 480,
   height: 800,
-  backgroundColor: '#000000',
   physics: {
     default: 'arcade',
-    arcade: { debug: false }
+    arcade: {
+      debug: false
+    }
   },
   scene: {
-    preload: preload,
-    create: create,
-    update: update
+    preload,
+    create,
+    update
   }
 };
 
-const game = new Phaser.Game(config);
-
 let player;
 let cursors;
+let enemies;
 let bullets;
 let lastFired = 0;
-let enemies;
 let score = 0;
 let scoreText;
 
+const game = new Phaser.Game(config);
+
 function preload() {
+  this.load.image('background', 'assets/background.png');
   this.load.image('player', 'assets/player.png');
-  this.load.image('bullet', 'assets/laser.png');
   this.load.image('enemy', 'assets/enemy.png');
-  this.load.image('background', 'assets/starfield.png');
+  this.load.image('bullet', 'assets/bullet.png');
 }
 
 function create() {
   this.add.tileSprite(240, 400, 480, 800, 'background').setScrollFactor(0);
-  player = this.physics.add.sprite(240, 700, 'player').setScale(0.8);
+
+  player = this.physics.add.sprite(240, 700, 'player');
   player.setCollideWorldBounds(true);
 
+  cursors = this.input.keyboard.createCursorKeys();
   bullets = this.physics.add.group({ classType: Phaser.Physics.Arcade.Image });
+
   enemies = this.physics.add.group();
-
-  scoreText = this.add.text(10, 10, 'Score: 0', { fontSize: '20px', fill: '#fff' });
-
-  this.time.addEvent({
-    delay: 1000,
-    callback: () => {
-      let x = Phaser.Math.Between(50, 430);
-      let enemy = enemies.create(x, 0, 'enemy').setScale(0.8);
-      enemy.setVelocityY(100);
-    },
-    loop: true
-  });
+  for (let i = 0; i < 5; i++) {
+    const enemy = enemies.create(Phaser.Math.Between(50, 430), Phaser.Math.Between(0, 200), 'enemy');
+    enemy.setVelocityY(100);
+  }
 
   this.physics.add.overlap(bullets, enemies, (bullet, enemy) => {
     bullet.destroy();
@@ -59,22 +54,32 @@ function create() {
     scoreText.setText('Score: ' + score);
   });
 
-  cursors = this.input.keyboard.createCursorKeys();
+  scoreText = this.add.text(10, 10, 'Score: 0', { font: '20px monospace', fill: '#fff' });
 }
 
-function update(time, delta) {
+function update(time) {
   if (cursors.left.isDown) player.setVelocityX(-200);
   else if (cursors.right.isDown) player.setVelocityX(200);
   else player.setVelocityX(0);
 
   if (cursors.space.isDown && time > lastFired) {
-    let bullet = bullets.get();
+    const bullet = bullets.get(player.x, player.y - 20, 'bullet');
     if (bullet) {
-      bullet.enableBody(true, player.x, player.y - 20, true, true);
-      bullet.setVelocityY(-300);
-      bullet.setTexture('bullet');
-      bullet.setScale(0.5);
+      bullet.setActive(true);
+      bullet.setVisible(true);
+      bullet.body.velocity.y = -400;
       lastFired = time + 300;
     }
   }
+
+  bullets.children.iterate(b => {
+    if (b && b.y < 0) b.destroy();
+  });
+
+  enemies.children.iterate(e => {
+    if (e && e.y > 800) {
+      e.y = 0;
+      e.x = Phaser.Math.Between(50, 430);
+    }
+  });
 }
