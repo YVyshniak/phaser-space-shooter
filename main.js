@@ -24,6 +24,8 @@ let score = 0;
 let scoreText;
 let playerHealth = 3;
 let healthText;
+let hpBar;
+const MAX_HEALTH = 3;
 
 const game = new Phaser.Game(config);
 
@@ -44,6 +46,10 @@ function create() {
   bullets = this.physics.add.group({ classType: Phaser.Physics.Arcade.Image });
   enemies = this.physics.add.group();
 
+  // HP Bar
+  hpBar = this.add.graphics();
+  drawHpBar();
+
   // Collision
   this.physics.add.overlap(bullets, enemies, (bullet, enemy) => {
     bullet.destroy();
@@ -57,6 +63,7 @@ function create() {
     enemy.destroy();
     playerHealth -= 1;
     healthText.setText('Health: ' + playerHealth);
+    drawHpBar();
     if (playerHealth <= 0) {
       this.physics.pause();
       player.setTint(0xff0000);
@@ -83,7 +90,7 @@ function create() {
 
 function spawnEnemy(scene) {
   const x = Phaser.Math.Between(50, 430);
-  const enemy = scene.physics.add.sprite(x, 0, 'enemy').setScale(0.35);
+  const enemy = scene.physics.add.sprite(x, 50, 'enemy').setScale(0.35);
 
   // Ensure all enemies have downward velocity
   enemy.setVelocityY(100);
@@ -110,6 +117,21 @@ function spawnEnemy(scene) {
   }
 
   enemies.add(enemy);
+}
+
+function drawHpBar() {
+  if (!hpBar) return;
+  hpBar.clear();
+  // Background
+  hpBar.fillStyle(0x222222, 1);
+  hpBar.fillRect(10, 70, 120, 18);
+  // Health
+  let healthWidth = 120 * (playerHealth / MAX_HEALTH);
+  hpBar.fillStyle(0x00ff00, 1);
+  hpBar.fillRect(10, 70, healthWidth, 18);
+  // Border
+  hpBar.lineStyle(2, 0xffffff, 1);
+  hpBar.strokeRect(10, 70, 120, 18);
 }
 
 
