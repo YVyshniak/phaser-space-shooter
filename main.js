@@ -35,7 +35,7 @@ function preload() {
 function create() {
   this.add.image(240, 400, 'background').setDisplaySize(480, 800);
 
-  player = this.physics.add.sprite(240, 700, 'player').setScale(0.6);
+  player = this.physics.add.sprite(240, 700, 'player').setScale(0.45);
   player.setCollideWorldBounds(true);
 
   cursors = this.input.keyboard.createCursorKeys();
@@ -65,7 +65,7 @@ function create() {
 
 function spawnEnemy(scene) {
   const x = Phaser.Math.Between(50, 430);
-  const enemy = scene.physics.add.sprite(x, 0, 'enemy').setScale(0.5);
+  const enemy = scene.physics.add.sprite(x, 0, 'enemy').setScale(0.35);
 
 
   const pattern = Phaser.Math.Between(0, 2);
@@ -95,9 +95,16 @@ function spawnEnemy(scene) {
 
 function update(time) {
   // Рух гравця
-  if (cursors.left.isDown) player.setVelocityX(-200);
-  else if (cursors.right.isDown) player.setVelocityX(200);
-  else player.setVelocityX(0);
+  if (cursors.left.isDown) {
+    player.setVelocityX(-200);
+    player.rotation = Phaser.Math.Angle.RotateTo(player.rotation, Phaser.Math.DegToRad(-15), 0.15);
+  } else if (cursors.right.isDown) {
+    player.setVelocityX(200);
+    player.rotation = Phaser.Math.Angle.RotateTo(player.rotation, Phaser.Math.DegToRad(15), 0.15);
+  } else {
+    player.setVelocityX(0);
+    player.rotation = Phaser.Math.Angle.RotateTo(player.rotation, 0, 0.15);
+  }
 
   // Стрільба
   if (cursors.space.isDown && time > lastFired) {
@@ -105,6 +112,7 @@ function update(time) {
     if (bullet) {
       bullet.setActive(true);
       bullet.setVisible(true);
+      bullet.setScale(0.3); // Make the laser smaller
       bullet.setVelocityY(-400);
       lastFired = time + 300;
     }
