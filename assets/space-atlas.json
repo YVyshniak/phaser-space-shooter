@@ -1,0 +1,39 @@
+{
+  "frames": {
+    "ChatGPT Image 22 лип. 2025 р., 18_58_21.png": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 1006,
+        "h": 1017
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 15,
+        "y": 6,
+        "w": 1006,
+        "h": 1017
+      },
+      "sourceSize": {
+        "w": 1024,
+        "h": 1024
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  },
+  "meta": {
+    "app": "http://free-tex-packer.com",
+    "version": "0.6.7",
+    "image": "texture.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 1006,
+      "h": 1017
+    },
+    "scale": 1
+  }
+}
