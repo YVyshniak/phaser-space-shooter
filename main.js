@@ -33,15 +33,20 @@ function preload() {
 }
 
 function create() {
-  this.add.tileSprite(240, 400, 480, 800, 'background').setScrollFactor(0);
+  // Static background
+  this.add.image(240, 400, 'background').setDisplaySize(480, 800);
 
-  player = this.physics.add.sprite(240, 700, 'player');
+  // Player setup
+  player = this.physics.add.sprite(240, 700, 'player').setScale(0.6);
   player.setCollideWorldBounds(true);
 
+  // Input
   cursors = this.input.keyboard.createCursorKeys();
 
+  // Bullet group
   bullets = this.physics.add.group({ classType: Phaser.Physics.Arcade.Image });
 
+  // Enemies
   enemies = this.physics.add.group();
   for (let i = 0; i < 5; i++) {
     const enemy = enemies.create(
@@ -50,8 +55,10 @@ function create() {
       'enemy'
     );
     enemy.setVelocityY(100);
+    enemy.setScale(0.5);
   }
 
+  // Collision
   this.physics.add.overlap(bullets, enemies, (bullet, enemy) => {
     bullet.destroy();
     enemy.destroy();
@@ -59,28 +66,36 @@ function create() {
     scoreText.setText('Score: ' + score);
   });
 
-  scoreText = this.add.text(10, 10, 'Score: 0', { font: '20px monospace', fill: '#fff' });
+  // Score text
+  scoreText = this.add.text(10, 10, 'Score: 0', {
+    font: '20px monospace',
+    fill: '#fff'
+  });
 }
 
 function update(time) {
+  // Player movement
   if (cursors.left.isDown) player.setVelocityX(-200);
   else if (cursors.right.isDown) player.setVelocityX(200);
   else player.setVelocityX(0);
 
+  // Shooting
   if (cursors.space.isDown && time > lastFired) {
     const bullet = bullets.get(player.x, player.y - 20, 'laser');
     if (bullet) {
       bullet.setActive(true);
       bullet.setVisible(true);
-      bullet.body.velocity.y = -400;
+      bullet.setVelocityY(-400);
       lastFired = time + 300;
     }
   }
 
+  // Remove bullets offscreen
   bullets.children.iterate(b => {
     if (b && b.y < 0) b.destroy();
   });
 
+  // Recycle enemies
   enemies.children.iterate(e => {
     if (e && e.y > 800) {
       e.y = 0;
