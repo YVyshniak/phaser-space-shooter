@@ -33,30 +33,14 @@ function preload() {
 }
 
 function create() {
-  // Static background
   this.add.image(240, 400, 'background').setDisplaySize(480, 800);
 
-  // Player setup
   player = this.physics.add.sprite(240, 700, 'player').setScale(0.6);
   player.setCollideWorldBounds(true);
 
-  // Input
   cursors = this.input.keyboard.createCursorKeys();
-
-  // Bullet group
   bullets = this.physics.add.group({ classType: Phaser.Physics.Arcade.Image });
-
-  // Enemies
   enemies = this.physics.add.group();
-  for (let i = 0; i < 5; i++) {
-    const enemy = enemies.create(
-      Phaser.Math.Between(50, 430),
-      Phaser.Math.Between(0, 200),
-      'enemy'
-    );
-    enemy.setVelocityY(100);
-    enemy.setScale(0.5);
-  }
 
   // Collision
   this.physics.add.overlap(bullets, enemies, (bullet, enemy) => {
@@ -66,20 +50,56 @@ function create() {
     scoreText.setText('Score: ' + score);
   });
 
-  // Score text
   scoreText = this.add.text(10, 10, 'Score: 0', {
     font: '20px monospace',
     fill: '#fff'
   });
+
+  
+  this.time.addEvent({
+    delay: 1200,
+    loop: true,
+    callback: () => spawnEnemy(this)
+  });
 }
 
+function spawnEnemy(scene) {
+  const x = Phaser.Math.Between(50, 430);
+  const enemy = scene.physics.add.sprite(x, 0, 'enemy').setScale(0.5);
+
+
+  const pattern = Phaser.Math.Between(0, 2);
+  if (pattern === 0) {
+    // Прямий рух
+    enemy.setVelocityY(100);
+  } else if (pattern === 1) {
+    // Зигзаг
+    enemy.setVelocity(Phaser.Math.Between(-80, 80), 100);
+    enemy.update = function () {
+      if (this.x <= 30 || this.x >= 450) {
+        this.body.velocity.x *= -1;
+      }
+    };
+  } else if (pattern === 2) {
+    // Хвиля
+    enemy.waveOffset = Phaser.Math.Between(0, 1000);
+    enemy.update = function (time) {
+      this.y += 1.5;
+      this.x += Math.sin((time + this.waveOffset) * 0.005) * 2;
+    };
+  }
+
+  enemies.add(enemy);
+}
+
+
 function update(time) {
-  // Player movement
+  // Рух гравця
   if (cursors.left.isDown) player.setVelocityX(-200);
   else if (cursors.right.isDown) player.setVelocityX(200);
   else player.setVelocityX(0);
 
-  // Shooting
+  // Стрільба
   if (cursors.space.isDown && time > lastFired) {
     const bullet = bullets.get(player.x, player.y - 20, 'laser');
     if (bullet) {
@@ -90,16 +110,18 @@ function update(time) {
     }
   }
 
-  // Remove bullets offscreen
+  // Очищення
   bullets.children.iterate(b => {
     if (b && b.y < 0) b.destroy();
   });
 
-  // Recycle enemies
+  // Апдейт для кожного ворога
   enemies.children.iterate(e => {
-    if (e && e.y > 800) {
-      e.y = 0;
-      e.x = Phaser.Math.Between(50, 430);
+    if (e && e.update) e.update(time);
+
+    if (e && e.y > 850) {
+      e.destroy(); // Якщо ворог вилетів за екран — знищити
     }
   });
 }
+
