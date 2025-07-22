@@ -26,27 +26,19 @@ let scoreText;
 const game = new Phaser.Game(config);
 
 function preload() {
-//  this.load.image('background', 'assets/background.png');
-//  this.load.image('player', 'assets/player.png');
-//  this.load.image('enemy', 'assets/enemy.png');
-//  this.load.image('bullet', 'assets/bullet.png');
-    this.load.atlas('space', 'assets/space-atlas.png', 'assets/space-atlas.json');
+  this.load.atlas('space', 'assets/space-atlas.png', 'assets/space-atlas.json');
 }
 
 function create() {
   this.add.tileSprite(240, 400, 480, 800, 'space', 'Background.png').setScrollFactor(0);
 
-
   player = this.physics.add.sprite(240, 700, 'space', 'Player.png');
   player.setCollideWorldBounds(true);
 
- 
   cursors = this.input.keyboard.createCursorKeys();
-
 
   bullets = this.physics.add.group({ classType: Phaser.Physics.Arcade.Image });
 
- 
   enemies = this.physics.add.group();
   for (let i = 0; i < 5; i++) {
     const enemy = enemies.create(
@@ -57,8 +49,6 @@ function create() {
     );
     enemy.setVelocityY(100);
   }
-}
-
 
   this.physics.add.overlap(bullets, enemies, (bullet, enemy) => {
     bullet.destroy();
@@ -76,7 +66,7 @@ function update(time) {
   else player.setVelocityX(0);
 
   if (cursors.space.isDown && time > lastFired) {
-    const bullet = bullets.get(player.x, player.y - 20, 'bullet');
+    const bullet = bullets.get(player.x, player.y - 20, 'space', 'Laser.png');
     if (bullet) {
       bullet.setActive(true);
       bullet.setVisible(true);
